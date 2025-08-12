@@ -1,0 +1,17 @@
+{
+    "mcpServers": {
+        "kvm-mcp": {
+            "command": "mise",
+            "args": [
+                "uv",
+                "--",
+                "run",
+                "python",
+                "kvm-mcp/kvm_mcp_server.py"
+            ],
+            "env": {
+                "VM_DISK_PATH": ".vm"
+            }
+        }
+    }
+}

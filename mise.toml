@@ -1,0 +1,8 @@
+[tools]
+uv = "0.8.8"
+
+[settings]
+idiomatic_version_file_enable_tools = ["python"]
+
+[tasks.uv]
+run = "uv"

@@ -1,0 +1,3 @@
+[submodule "kvm-mcp"]
+	path = kvm-mcp
+	url = https://github.com/steveydevey/kvm-mcp.git
