@@ -7,33 +7,43 @@ POC log - checking vncdotool
 A Fedora 42 VM was setup manaully using virt-manager. Settings were changed
 manually to use VNC instead of Spice. From that point on it was available at:
 
-    vnc://localhost:5600
+```bash
+vnc://localhost:5600
+```
 
 The VM can be controlled from `vncdotool`. Here are some examples:
 
 Unlocking the lock screen (note the password in the clear here...):
 
-    vncdotool -s 127.0.0.1::5900 type demokudasaidomo key enter
+```bash
+vncdotool -s 127.0.0.1::5900 type demokudasaidomo key enter
+```
 
 Starting the calculator from the activities menu, waiting 5 seconds, then
 closing it with the keyboard:
 
-    vncdotool -s 127.0.0.1::5900  move 10 10 click 1 pause 3 \
-        type calculator pause 3 \
-        key enter pause 5 \
-        keydown alt key f4 keyup alt
+```bash
+vncdotool -s 127.0.0.1::5900  move 10 10 click 1 pause 3 \
+    type calculator pause 3 \
+    key enter pause 5 \
+    keydown alt key f4 keyup alt
+```
 
 We can use VLC the to record the VNC stream to a video file. The command
 records the video while also showing it on screen in the VLC player window:
 
-    vlc -vvv vnc://localhost:5900 \
-        --sout="#duplicate{dst=display,dst='transcode{vcodec=h264,acodec=mp3,ab=128}:std{access=file,mux=mp4,dst=$HOME/Videos/vm-record1.mp4}'}" \
-        --sout-keep
+```bash
+vlc -vvv vnc://localhost:5900 \
+    --sout="#duplicate{dst=display,dst='transcode{vcodec=h264,acodec=mp3,ab=128}:std{access=file,mux=mp4,dst=$HOME/Videos/vm-record1.mp4}'}" \
+    --sout-keep
+```
 
 Note: this does not record the mouse pointer. The VLC `--screen-mouse-image`
 option might help here, you set it to an image of the mouse pointer like:
 
-    /usr/share/icons/Adwaita/cursors/default
+```bash
+/usr/share/icons/Adwaita/cursors/default
+```
 
 (I did not try this yet, need a longer vncdotool program to bounce the mouse
 around on the screen)
@@ -44,7 +54,9 @@ solve this by using `-I rc` to enable a remote control interface for VLC on
 port 4212. We can then send commands to it with something like `nc`, for
 example:
 
-    echo "quit" | nc localhost 4212
+```bash
+echo "quit" | nc localhost 4212
+```
 
 Node: can add `--rc-quiet` to make VLC less noisy on its STDOUT (Would
 probably also want to not pass `-vvv` when doing this).
@@ -95,3 +107,43 @@ the following for us:
 5. Type slowly
 6. Skip sections we don't need to do - for e.g. don't create the VM if it was
    already created.
+
+Example for how a demo generation script would look like:
+
+```python
+import demotool
+
+# Designates the `demo-videos/my-cool-demo` directory where all output 
+# vidoes would be stored. The directory is named here but would only get
+# created once we actually start recording a video, or not at all.
+# The `demo-videos` directory should probably be in `.gitignore`
+with demotool.startdemo("my-cool-demo") as demo:
+    # Start a demo VM. The VM name would be based on the demo name. The
+    # image is based on the virt-builder template with the given name, 
+    # with the @workstation-product-environment package installed.
+    # images would be stored in the relevant XDG cache directory so that
+    # the image for a given distro version is only created once.
+    # The VM itself would use a COW layer on top of the original image.
+    with demo.vm("fedora-42") as vm:
+        # Ensure we are logged-in to a desktop session for a demo user we
+        # created during image insallation
+        vm.unlock()
+        # Start recording video to `demo-videos/my-cool-demo/calc.mp4
+        with vm.record("calc"):
+            # the vm object basically exposes an augmented vncdotool API
+
+            # Move the mouse pointer to the center of the screen
+            vm.mouseMoveCenter()
+            # Animate moving the mouse to 10,10
+            vm.mouseDrag(10, 10, step=10)
+            vm.mousePress(1)
+            vm.pause(3)
+            # Animate typing
+            vm.type("calculator")
+            vm.pause(3)
+            vm.keyPress("enter")
+            vm.pasue(5)
+            # Type key combinations - press down all keys then release 
+            # in reverse order
+            vm.keyCombo("alt", "f4")
+```
