@@ -147,3 +147,16 @@ with demotool.startdemo("my-cool-demo") as demo:
             # in reverse order
             vm.keyCombo("alt", "f4")
 ```
+
+To reduce demo creation boilderplate, a shorthand syntax to the above could be:
+
+```python
+import demotool
+
+# Start a VM with the given image, unlock it and begin recording into 
+# `demo-videos/my-cool-demo/my-cool-demo.mp4`
+with demotool.recordDemo("my-cool-demo", "fedora-42") as vm:
+    vm.mouseMoveCenter()
+    vm.mouseDrag(10, 10, step=10)
+    # ...
+```
