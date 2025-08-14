@@ -4,6 +4,20 @@
 
 This specification defines general coding requirements and patterns that apply across all demotool components.
 
+## Configuration
+
+Prefere well-picked or auto-detected optimal values to adding configuration options to the code.
+
+## Integration
+
+When integrating with external tools, this is the ordere of preference for integration options:
+
+1. Python bindings provided by the tool or library authors
+2. 3rd party Python pindings
+3. Remote control APIs (TCP, DBUS, REST, etc.), with Python networking code on the client side or
+   cliend-side libraries with Python bindinds.
+4. Calling over CLI/shell.
+
 ## Error Handling
 
 ### Logging Requirements
