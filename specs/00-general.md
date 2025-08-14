@@ -78,3 +78,8 @@ When integrating with external tools, this is the ordere of preference for integ
 - Use `@contextmanager` decorator for simple resource management
 - Use class-based context managers for complex resource hierarchies
 - Ensure cleanup happens even when exceptions occur
+
+## Dependency management
+
+- Use the `uv` tool for Python dependency management
+- Use `mise` for any non-Python tool dependencies
