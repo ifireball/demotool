@@ -25,31 +25,29 @@ class ImageManager:
         self.cache_dir.mkdir(parents=True, exist_ok=True)
         logger.debug(f"Image cache directory: {self.cache_dir}")
     
-    def get_image_path(self, distro: str, version: str) -> Path:
+    def get_image_path(self, image_id: str) -> Path:
         """
         Get the path to a base image.
         
         Args:
-            distro: Distribution name (e.g., 'fedora')
-            version: Distribution version (e.g., '42')
+            image_id: Base image identifier (e.g., 'fedora-42')
             
         Returns:
             Path to the base image file
         """
-        return self.cache_dir / f"{distro}-{version}.qcow2"
+        return self.cache_dir / f"{image_id}.qcow2"
     
-    def image_exists(self, distro: str, version: str) -> bool:
+    def image_exists(self, image_id: str) -> bool:
         """
         Check if a base image exists.
         
         Args:
-            distro: Distribution name
-            version: Distribution version
+            image_id: Base image identifier
             
         Returns:
             True if image exists and is valid, False otherwise
         """
-        image_path = self.get_image_path(distro, version)
+        image_path = self.get_image_path(image_id)
         
         if not image_path.exists():
             return False
@@ -72,13 +70,12 @@ class ImageManager:
             logger.warning(f"Failed to validate qcow2 format: {image_path}")
             return False
     
-    def create_image(self, distro: str, version: str) -> Path:
+    def create_image(self, image_id: str) -> Path:
         """
         Create a base image using virt-builder.
         
         Args:
-            distro: Distribution name
-            version: Distribution version
+            image_id: Base image identifier
             
         Returns:
             Path to the created image
@@ -86,10 +83,10 @@ class ImageManager:
         Raises:
             ImageError: If image creation fails
         """
-        image_path = self.get_image_path(distro, version)
+        image_path = self.get_image_path(image_id)
         
         # Check if image already exists and is valid
-        if self.image_exists(distro, version):
+        if self.image_exists(image_id):
             logger.info(f"Using existing image: {image_path}")
             return image_path
         
@@ -98,7 +95,7 @@ class ImageManager:
             logger.warning(f"Deleting corrupted image: {image_path}")
             image_path.unlink()
         
-        logger.info(f"Creating base image: {distro}-{version}")
+        logger.info(f"Creating base image: {image_id}")
         
         try:
             # Create temporary file for virt-builder output
@@ -108,7 +105,7 @@ class ImageManager:
             # Build image using virt-builder
             cmd = [
                 "virt-builder",
-                f"{distro}-{version}",
+                image_id,
                 "--output", str(tmp_path),
                 "--format", "qcow2",
                 "--install", "@workstation-product-environment",
@@ -143,7 +140,7 @@ class ImageManager:
             if 'tmp_path' in locals() and tmp_path.exists():
                 tmp_path.unlink()
             
-            raise ImageError(f"Failed to create image {distro}-{version}: {e}")
+            raise ImageError(f"Failed to create image {image_id}: {e}")
         
         except Exception as e:
             logger.error(f"Unexpected error creating image: {e}")
@@ -152,7 +149,7 @@ class ImageManager:
             if 'tmp_path' in locals() and tmp_path.exists():
                 tmp_path.unlink()
             
-            raise ImageError(f"Failed to create image {distro}-{version}: {e}")
+            raise ImageError(f"Failed to create image {image_id}: {e}")
     
     def _get_firstboot_commands(self) -> str:
         """

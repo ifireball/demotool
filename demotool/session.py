@@ -60,25 +60,24 @@ class DemoSession:
         return self._vm_manager
     
     @contextmanager
-    def vm(self, distro: str, version: str):
+    def vm(self, image_id: str):
         """
         Create and manage a VM instance within the demo session.
         
         Args:
-            distro: Distribution name (e.g., 'fedora')
-            version: Distribution version (e.g., '42')
+            image_id: Base image identifier (e.g., 'fedora-42')
             
         Yields:
             VM object when ready
             
         Example:
-            with demo.vm("fedora", "42") as vm:
+            with demo.vm("fedora-42") as vm:
                 # VM is ready for interaction
                 print(f"VNC port: {vm.vnc_port}")
         """
         vm_manager = self._get_vm_manager()
         
-        with vm_manager.create_vm(self.name, distro, version) as vm_obj:
+        with vm_manager.create_vm(self.name, image_id) as vm_obj:
             # Set the demo session reference
             vm_obj.demo = self
             yield vm_obj
@@ -124,7 +123,7 @@ def startdemo(name: str):
         
     Example:
         with demotool.startdemo("my-cool-demo") as demo:
-            with demo.vm("fedora", "42") as vm:
+            with demo.vm("fedora-42") as vm:
                 # Demo VM is ready for interaction
                 pass
     """
@@ -140,23 +139,22 @@ def startdemo(name: str):
 
 # Convenience function for simple demo workflows
 @contextmanager
-def recordDemo(name: str, distro: str, version: str):
+def recordDemo(name: str, image_id: str):
     """
     Convenience function for simple demo workflows.
     
     Args:
         name: Name of the demo session
-        distro: Distribution name
-        version: Distribution version
+        image_id: Base image identifier (e.g., 'fedora-42')
         
     Yields:
         VM object when ready
         
     Example:
-        with demotool.recordDemo("demo-name", "fedora", "42") as vm:
+        with demotool.recordDemo("demo-name", "fedora-42") as vm:
             # Demo VM is ready for interaction
             pass
     """
     with startdemo(name) as demo:
-        with demo.vm(distro, version) as vm:
+        with demo.vm(image_id) as vm:
             yield vm

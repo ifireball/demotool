@@ -18,10 +18,10 @@ def main() -> int:
         epilog="""
 Examples:
   # Start a demo session with a VM
-  demotool start my-demo fedora 42
+  demotool start my-demo fedora-42
   
   # Quick demo recording
-  demotool record quick-demo fedora 42
+  demotool record quick-demo fedora-42
   
   # List available images
   demotool images list
@@ -36,16 +36,14 @@ Examples:
     # Start command
     start_parser = subparsers.add_parser("start", help="Start a demo session")
     start_parser.add_argument("name", help="Demo session name")
-    start_parser.add_argument("distro", help="Distribution name (e.g., fedora)")
-    start_parser.add_argument("version", help="Distribution version (e.g., 42)")
+    start_parser.add_argument("image_id", help="Base image identifier (e.g., fedora-42)")
     start_parser.add_argument("--timeout", type=int, default=120,
                              help="Boot timeout in seconds (default: 120)")
     
     # Record command
     record_parser = subparsers.add_parser("record", help="Quick demo recording")
     record_parser.add_argument("name", help="Demo session name")
-    record_parser.add_argument("distro", help="Distribution name (e.g., fedora)")
-    record_parser.add_argument("version", help="Distribution version (e.g., 42)")
+    record_parser.add_argument("image_id", help="Base image identifier (e.g., fedora-42)")
     record_parser.add_argument("--timeout", type=int, default=120,
                               help="Boot timeout in seconds (default: 120)")
     
@@ -88,7 +86,7 @@ Examples:
 def _handle_start(args) -> int:
     """Handle the start command."""
     print(f"Starting demo session: {args.name}")
-    print(f"Distribution: {args.distro} {args.version}")
+    print(f"Base image: {args.image_id}")
     
     if args.timeout != 120:
         print(f"Boot timeout: {args.timeout} seconds")
@@ -97,7 +95,7 @@ def _handle_start(args) -> int:
         with startdemo(args.name) as demo:
             print(f"Demo directory: {demo.directory}")
             
-            with demo.vm(args.distro, args.version) as vm:
+            with demo.vm(args.image_id) as vm:
                 print(f"VM is ready!")
                 print(f"VNC port: {vm.vnc_port}")
                 print(f"Demo directory: {vm.directory}")
@@ -122,13 +120,13 @@ def _handle_start(args) -> int:
 def _handle_record(args) -> int:
     """Handle the record command."""
     print(f"Starting quick demo recording: {args.name}")
-    print(f"Distribution: {args.distro} {args.version}")
+    print(f"Base image: {args.image_id}")
     
     if args.timeout != 120:
         print(f"Boot timeout: {args.timeout} seconds")
     
     try:
-        with recordDemo(args.name, args.distro, args.version) as vm:
+        with recordDemo(args.name, args.image_id) as vm:
             print(f"VM is ready!")
             print(f"VNC port: {vm.vnc_port}")
             print(f"Demo directory: {vm.directory}")

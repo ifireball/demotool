@@ -43,7 +43,7 @@ Demotool provides a Python-based framework for orchestrating VM lifecycle manage
 import demotool
 
 # Simple demo workflow
-with demotool.recordDemo("my-demo", "fedora", "42") as vm:
+with demotool.recordDemo("my-demo", "fedora-42") as vm:
     print(f"VM is ready! VNC port: {vm.vnc_port}")
     # Your demo code here
 ```
@@ -54,7 +54,7 @@ with demotool.recordDemo("my-demo", "fedora", "42") as vm:
 import demotool
 
 with demotool.startdemo("complex-demo") as demo:
-    with demo.vm("fedora", "42") as vm:
+    with demo.vm("fedora-42") as vm:
         # Setup phase
         setup_file = demo.create_output_file("setup.txt")
         
@@ -72,10 +72,10 @@ with demotool.startdemo("complex-demo") as demo:
 
 ```bash
 # Start a demo session
-demotool start my-demo fedora 42
+demotool start my-demo fedora-42
 
 # Quick demo recording
-demotool record quick-demo fedora 42
+demotool record quick-demo fedora-42
 
 # List available base images
 demotool images list

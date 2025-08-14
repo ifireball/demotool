@@ -229,14 +229,13 @@ class VMManager:
             pass
     
     @contextmanager
-    def create_vm(self, demo_name: str, distro: str, version: str):
+    def create_vm(self, demo_name: str, image_id: str):
         """
         Create and manage a VM instance.
         
         Args:
             demo_name: Name of the demo session
-            distro: Distribution name
-            version: Distribution version
+            image_id: Base image identifier (e.g., 'fedora-42')
             
         Yields:
             VM object when ready
@@ -252,7 +251,7 @@ class VMManager:
             self._delete_existing_vm(vm_name)
             
             # Get or create base image
-            image_path = self.image_manager.create_image(distro, version)
+            image_path = self.image_manager.create_image(image_id)
             
             # Get host resources
             cpu_cores, ram_mb = self._get_host_resources()

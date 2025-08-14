@@ -20,7 +20,7 @@ def basic_demo():
     with demotool.startdemo("basic-example") as demo:
         print(f"Demo directory: {demo.directory}")
         
-        with demo.vm("fedora", "42") as vm:
+        with demo.vm("fedora-42") as vm:
             print(f"VM is ready!")
             print(f"VNC port: {vm.vnc_port}")
             print(f"Demo directory: {vm.directory}")
@@ -49,7 +49,7 @@ def quick_demo():
     """Quick demo using the convenience function."""
     print("Starting quick demo...")
     
-    with demotool.recordDemo("quick-example", "fedora", "42") as vm:
+    with demotool.recordDemo("quick-example", "fedora-42") as vm:
         print(f"Quick demo VM is ready!")
         print(f"VNC port: {vm.vnc_port}")
         print(f"Demo directory: {vm.directory}")
@@ -72,7 +72,7 @@ def multi_section_demo():
     with demotool.startdemo("multi-section-example") as demo:
         print(f"Demo directory: {demo.directory}")
         
-        with demo.vm("fedora", "42") as vm:
+        with demo.vm("fedora-42") as vm:
             print(f"VM is ready!")
             print(f"VNC port: {vm.vnc_port}")
             
