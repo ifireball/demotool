@@ -105,7 +105,6 @@ class VMManager:
   <features>
     <acpi/>
     <apic/>
-    <vmx state="on"/>
   </features>
   <devices>
     <disk type="file" device="disk">
@@ -146,23 +145,33 @@ class VMManager:
                 # Get VNC port from libvirt
                 xml_desc = vm.XMLDesc()
                 if 'graphics type="vnc"' in xml_desc:
-                    # Extract port from XML
+                    # Extract port from XML - handle multi-line format
                     for line in xml_desc.split('\n'):
-                        if 'graphics type="vnc"' in line and 'port=' in line:
-                            if 'autoport="yes"' in line:
-                                # Port is auto-allocated, need to get it from libvirt
-                                port = vm.vncDisplay()
-                                if port is not None:
-                                    logger.info(f"VNC port allocated: {port}")
-                                    return port
+                        if 'graphics type="vnc"' in line:
+                            # Check if this line has port information
+                            if 'port=' in line:
+                                if 'autoport="yes"' in line:
+                                    # Port is auto-allocated, need to get it from libvirt
+                                    port = vm.vncDisplay()
+                                    if port is not None:
+                                        logger.info(f"VNC port allocated: {port}")
+                                        return port
+                                else:
+                                    # Port is explicitly set
+                                    import re
+                                    match = re.search(r'port="(\d+)"', line)
+                                    if match:
+                                        port = int(match.group(1))
+                                        logger.info(f"VNC port: {port}")
+                                        return port
                             else:
-                                # Port is explicitly set
-                                import re
-                                match = re.search(r'port="(\d+)"', line)
-                                if match:
-                                    port = int(match.group(1))
-                                    logger.info(f"VNC port: {port}")
-                                    return port
+                                # This line has graphics type but no port, check for autoport
+                                if 'autoport="yes"' in line:
+                                    # Port is auto-allocated, need to get it from libvirt
+                                    port = vm.vncDisplay()
+                                    if port is not None:
+                                        logger.info(f"VNC port allocated: {port}")
+                                        return port
                 
                 time.sleep(1)
                 
@@ -218,9 +227,15 @@ class VMManager:
             existing_vm = self.conn.lookupByName(name)
             logger.info(f"Deleting existing VM: {name}")
             
+            # Try to destroy if running, but continue even if it fails
             if existing_vm.isActive():
-                existing_vm.destroy()
+                try:
+                    existing_vm.destroy()
+                except libvirt.libvirtError as e:
+                    logger.warning(f"Failed to destroy VM {name}: {e}")
+                    # Continue with undefine even if destroy fails
             
+            # Always try to undefine
             existing_vm.undefine()
             logger.info(f"Successfully deleted VM: {name}")
             

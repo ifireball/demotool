@@ -98,8 +98,16 @@ class ImageManager:
         logger.info(f"Creating base image: {image_id}")
         
         try:
-            # Create temporary file for virt-builder output
-            with tempfile.NamedTemporaryFile(suffix=".qcow2", delete=False) as tmp_file:
+            # Create temporary file in the same directory as the final destination
+            # This ensures rename() will work (same filesystem)
+            cache_dir = image_path.parent
+            cache_dir.mkdir(parents=True, exist_ok=True)
+            
+            with tempfile.NamedTemporaryFile(
+                suffix=".qcow2", 
+                dir=str(cache_dir), 
+                delete=False
+            ) as tmp_file:
                 tmp_path = Path(tmp_file.name)
             
             # Build image using virt-builder
@@ -125,7 +133,7 @@ class ImageManager:
                 check=True
             )
             
-            # Move temporary file to final location
+            # Move temporary file to final location (now guaranteed to work)
             tmp_path.rename(image_path)
             
             logger.info(f"Successfully created image: {image_path}")

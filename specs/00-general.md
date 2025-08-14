@@ -6,17 +6,16 @@ This specification defines general coding requirements and patterns that apply a
 
 ## Configuration
 
-Prefere well-picked or auto-detected optimal values to adding configuration options to the code.
+Prefer well-picked or auto-detected optimal values over adding configuration options to the code.
 
 ## Integration
 
-When integrating with external tools, this is the ordere of preference for integration options:
+When integrating with external tools, use this order of preference:
 
 1. Python bindings provided by the tool or library authors
-2. 3rd party Python pindings
-3. Remote control APIs (TCP, DBUS, REST, etc.), with Python networking code on the client side or
-   cliend-side libraries with Python bindinds.
-4. Calling over CLI/shell.
+2. Third-party Python bindings
+3. Remote control APIs (TCP, DBUS, REST, etc.) with Python networking code or client-side libraries
+4. CLI/shell command execution
 
 ## Error Handling
 
@@ -59,13 +58,40 @@ When integrating with external tools, this is the ordere of preference for integ
 
 ## Testing
 
+### Test Strategy
+
+- **Integration-focused testing**: Prefer testing actual functionality over extensive mocking
+- **Minimal mocking**: Only mock system-level dependencies that can't be easily tested
+- **Real tool integration**: Test actual integration with external tools (libvirt, virt-builder, qemu-img)
+- **Performance optimization**: Limit slow operations to one test per major functionality area
+
+### Test Organization
+
+- **Unit test classes**: Fast tests focusing on library logic and error handling
+- **Integration test classes**: Slower tests requiring actual system tools and resources
+- **Clear separation**: Easy to run fast tests vs. full integration tests
+- **Test naming**: Descriptive names that clearly indicate what's being tested
+
 ### Test Requirements
 
-- Unit tests for all public methods
-- Integration tests for VM lifecycle
-- Mock external dependencies (libvirt, virt-builder)
-- Test error conditions and edge cases
-- Ensure cleanup happens in all scenarios
+- Unit tests for all public methods and edge cases
+- Integration tests for actual tool integration (VM lifecycle, image creation)
+- Test error conditions and resource cleanup scenarios
+- Mock only when necessary (subprocess calls, file system operations)
+
+### Performance Guidelines
+
+- **Fast tests**: Most tests should complete in seconds
+- **Slow tests**: Only one test per major functionality should run slow operations
+- **Resource management**: Use temporary directories and proper cleanup
+- **Test isolation**: Each test should be independent and clean up after itself
+
+### Test Fixtures and Mocking
+
+- **Temporary resources**: Use pytest fixtures for temporary directories and resources
+- **Mocking strategy**: Mock subprocess calls, file system operations, and network calls
+- **Real tools**: Use actual libvirt, virt-builder, and qemu-img when testing integration
+- **Fixture scope**: Use session-scoped fixtures for expensive setup operations
 
 ## Performance
 
@@ -79,7 +105,7 @@ When integrating with external tools, this is the ordere of preference for integ
 - Use class-based context managers for complex resource hierarchies
 - Ensure cleanup happens even when exceptions occur
 
-## Dependency management
+## Dependency Management
 
 - Use the `uv` tool for Python dependency management
 - Use `mise` for any non-Python tool dependencies
