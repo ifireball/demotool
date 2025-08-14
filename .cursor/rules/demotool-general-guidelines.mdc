@@ -1,0 +1,19 @@
+---
+alwaysApply: true
+---
+# Demotool General Coding Guidelines
+
+**Always follow the coding guidelines specified in [specs/00-general.md](mdc:specs/00-general.md) when generating code.**
+
+This rule ensures all code generation adheres to the project's established standards for:
+
+- Configuration preferences
+- Integration approaches
+- Error handling and logging
+- Code organization
+- Testing requirements
+- Performance and resource management
+- Dependency management
+- File formatting
+
+Refer to the specification document for detailed requirements and examples.
